@@ -21,6 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ import java.util.Properties;
 /**
  * Goal which touches a timestamp file.
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class JsonPropsGeneratorMojo extends AbstractMojo {
 
     //private static Log logger = new SystemStreamLog();
@@ -42,7 +43,7 @@ public class JsonPropsGeneratorMojo extends AbstractMojo {
      * Output directory for js file.
      */
     @Parameter(required = true, property = "out.directory", defaultValue = "${project.build.directory}")
-    private File jsOutputProperyFile;
+    private String jsOutputProperyFile;
 
     /**
      * In flat mode '.' character in property key will not create a new object in js.
@@ -73,6 +74,9 @@ public class JsonPropsGeneratorMojo extends AbstractMojo {
     @Parameter(required = true, defaultValue = "true")
     private Boolean isFlatMode;
 
+    @Parameter(required = true, property = "json.indent", defaultValue = "4")
+    private int jsonFormatterIndent;
+
     /**
      * Js property name.
      */
@@ -80,10 +84,6 @@ public class JsonPropsGeneratorMojo extends AbstractMojo {
     private String forceSingleRootForOutProps;
 
     public void execute() throws MojoExecutionException {
-        if (!isFlatMode) {
-            throw new UnsupportedOperationException("It is not implemented yet!");
-        }
-
         final Map<String, Properties> readProps = new HashMap<>();
 
         for (String variableName : jsonObjToSrcFiles.keySet()) {
@@ -92,6 +92,9 @@ public class JsonPropsGeneratorMojo extends AbstractMojo {
             readProps.put(variableName, props);
         }
 
-        System.out.println(readProps);
+        final Map<String, JSONObject> outObjects = isFlatMode ? FlatJsPropertyGenerator.generate(readProps)
+                : AdvancedJsPropertyGenerator.generate(readProps);
+
+        OutJsFileWriter.writeToFile(outObjects, jsOutputProperyFile, jsonFormatterIndent);
     }
 }
