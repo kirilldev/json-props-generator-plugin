@@ -1,10 +1,7 @@
 package com.github.kirilldev;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.net.URL;
 import java.util.*;
 
 public class FlatJsPropertyGenerator {

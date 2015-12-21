@@ -28,22 +28,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * Goal which touches a timestamp file.
- */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-public class JsonPropsGeneratorMojo extends AbstractMojo {
+public class JavaScriptPropertiesGeneratorMojo extends AbstractMojo {
 
     //private static Log logger = new SystemStreamLog();
 
+    /**
+     * Source files to process.
+     */
     @Parameter(required = true)
-    private Map<String, File> jsonObjToSrcFiles;
+    private Map<String, File> jsonObjNameToSrcFile;
 
     /**
-     * Output directory for js file.
+     * Path to output js property file.
      */
-    @Parameter(required = true, property = "out.directory", defaultValue = "${project.build.directory}")
-    private String jsOutputProperyFile;
+    @Parameter(required = true, defaultValue = "${project.build.directory}")
+    private String jsonOutputProperyFilePath;
 
     /**
      * In flat mode '.' character in property key will not create a new object in js.
@@ -74,27 +74,41 @@ public class JsonPropsGeneratorMojo extends AbstractMojo {
     @Parameter(required = true, defaultValue = "true")
     private Boolean isFlatMode;
 
-    @Parameter(required = true, property = "json.indent", defaultValue = "4")
+    /**
+     * Affects on json formatting.
+     */
+    @Parameter(required = true, defaultValue = "4")
     private int jsonFormatterIndent;
 
     /**
-     * Js property name.
+     * If this value was passed all property values will have single root with this name.
      */
-    @Parameter(required = false, property = "js.property.object.name")
-    private String forceSingleRootForOutProps;
+    @Parameter(required = false)
+    private String jsonNameForAggregatedPropsRoot;
 
+    /**
+     * Has effect only if nameForAggregatedPropsRoot was passed
+     */
+    @Parameter(required = false, defaultValue = "false")
+    private Boolean skipEnclosureLevelAfterAggregatedRoot;
+
+    /**
+     * @throws MojoExecutionException if execution failed.
+     */
     public void execute() throws MojoExecutionException {
-        final Map<String, Properties> readProps = new HashMap<>();
+        final Map<String, Properties> jsonObjNameToPropertyFile = new HashMap<>();
 
-        for (String variableName : jsonObjToSrcFiles.keySet()) {
-            final File srcPropertyFile = jsonObjToSrcFiles.get(variableName);
+        for (final String jsVarNameToCreate : jsonObjNameToSrcFile.keySet()) {
+            final File srcPropertyFile = jsonObjNameToSrcFile.get(jsVarNameToCreate);
             final Properties props = PlaceholderAwarePropertyReader.read(srcPropertyFile);
-            readProps.put(variableName, props);
+            jsonObjNameToPropertyFile.put(jsVarNameToCreate, props);
         }
 
-        final Map<String, JSONObject> outObjects = isFlatMode ? FlatJsPropertyGenerator.generate(readProps)
-                : AdvancedJsPropertyGenerator.generate(readProps);
+        final Map<String, JSONObject> jsonObjNameToOutObject = isFlatMode
+                ? FlatJsPropertyGenerator.generate(jsonObjNameToPropertyFile)
+                : AdvancedJsPropertyGenerator.generate(jsonObjNameToPropertyFile);
 
-        OutJsFileWriter.writeToFile(outObjects, jsOutputProperyFile, jsonFormatterIndent);
+        OutJsFileWriter.writeToFile(jsonObjNameToOutObject, jsonOutputProperyFilePath, jsonFormatterIndent,
+                jsonNameForAggregatedPropsRoot, skipEnclosureLevelAfterAggregatedRoot);
     }
 }
