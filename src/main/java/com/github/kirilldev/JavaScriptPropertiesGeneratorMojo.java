@@ -31,8 +31,6 @@ import java.util.Properties;
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class JavaScriptPropertiesGeneratorMojo extends AbstractMojo {
 
-    //private static Log logger = new SystemStreamLog();
-
     /**
      * Source files to process.
      */

@@ -20,10 +20,10 @@ public class OutJsFileWriter {
             isExist = outFile.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
-            throw new MojoExecutionException("WTF?", e);
+            throw new MojoExecutionException("Can't create out file!", e);
         }
 
-        try (PrintStream out = new PrintStream(new FileOutputStream(outFile, isExist))) {
+        try (final PrintStream out = new PrintStream(new FileOutputStream(outFile, isExist))) {
 
             if (jsNameForAggregatedPropsRoot != null) {
                 final Map<String, JSONObject> aggregated = new HashMap<>();
@@ -36,12 +36,13 @@ public class OutJsFileWriter {
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            throw new MojoExecutionException("Error happened while writing to the out file!", e);
         }
     }
 
     private static JSONObject aggregateData(Map<String, JSONObject> outObjects,
                                             boolean skipEnclosureLevelAfterAggregatedRoot) {
-        JSONObject aggregatedRoot = new JSONObject();
+        final JSONObject aggregatedRoot = new JSONObject();
 
         if (skipEnclosureLevelAfterAggregatedRoot) {
             for (String varName : outObjects.keySet()) {
@@ -60,7 +61,7 @@ public class OutJsFileWriter {
 
     private static void writeVarWithAssignedObject(PrintStream out,
                                               Map<String, JSONObject> outObjects, int jsonFormatterIndent) {
-        for (String varName : outObjects.keySet()) {
+        for (final String varName : outObjects.keySet()) {
             out.print("var ");
             out.print(varName);
             out.print(" = ");

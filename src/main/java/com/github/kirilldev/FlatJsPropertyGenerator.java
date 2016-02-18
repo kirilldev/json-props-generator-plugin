@@ -7,17 +7,17 @@ import java.util.*;
 public class FlatJsPropertyGenerator {
 
     public static Map<String, JSONObject> generate(Map<String, Properties> props) {
-        Map<String, JSONObject> outPropsObj = new HashMap<>();
+        final Map<String, JSONObject> outPropsObj = new HashMap<>();
 
-        for (String key : props.keySet()) {
-            JSONObject obj = new JSONObject();
-            Properties p = props.get(key);
+        for (String propsKey : props.keySet()) {
+            final JSONObject generatedObj = new JSONObject();
+            final Properties p = props.get(propsKey);
 
-            for (Object name : p.keySet()) {
-                obj.put((String) name, p.getProperty((String) name));
+            for (final Object propertyName : p.keySet()) {
+                generatedObj.put((String) propertyName, p.getProperty((String) propertyName));
             }
 
-            outPropsObj.put(key, obj);
+            outPropsObj.put(propsKey, generatedObj);
         }
 
         return outPropsObj;

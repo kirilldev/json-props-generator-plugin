@@ -17,9 +17,11 @@ public class PlaceholderAwarePropertyReader {
         final StringBuilder filteredProps = new StringBuilder();
         boolean ignoreLines = false;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(srcPropertyFile))) {
+        try (final BufferedReader br = new BufferedReader(new FileReader(srcPropertyFile))) {
+
             for (String line; (line = br.readLine()) != null; ) {
-                String trimmed = line.trim();
+                final String trimmed = line.trim();
+
                 if (Placeholders.START_LINE_IGNORING.equals(trimmed)) {
                     ignoreLines = true;
                     continue;
@@ -35,7 +37,9 @@ public class PlaceholderAwarePropertyReader {
 
             final Properties javaProps = new Properties();
             javaProps.load(new StringReader(filteredProps.toString()));
+
             return javaProps;
+
         } catch (IOException e) {
             throw new MojoExecutionException("Got an error during processing " + srcPropertyFile + " file", e);
         }

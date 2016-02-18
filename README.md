@@ -28,3 +28,9 @@ Simple configuration example:
         </plugins>
         
 It will generate "properties.js" file with content of "java.config.properties" inside assigned to variable named "CONFIG".
+
+
+Plugin supports two marker keywords:
+
+"!jsonPropsGenerator:ignoreLinesStart" - it means that all props following after this line will not get to the out file.
+"!jsonPropsGenerator:ignoreLinesEnd" - use it in case if you want to disable line ignoring turned on by ignoreLinesStart.
